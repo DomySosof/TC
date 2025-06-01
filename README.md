@@ -3,6 +3,9 @@ clonar el repositorio
 git clone https://github.com/DomySosof/TC.git
 ```
 
+```
+cd TC
+```
 
 # Constuir docker 
 ```
