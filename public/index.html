@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Gastos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark .bg-gradient-to-br {
+            background-image: linear-gradient(to bottom right, #181426, #506266);
+        }
+    </style>
+</head>
+
+    <div class="container mx-auto p-2">
+
+        <h1 class="text-4xl font-extrabold text-center mb-8 text-blue-800 drop-shadow-lg">Control de Tarjeta de Credito</h1>
+
+
+<body class="bg-gradient-to-br from-blue-50 to-purple-100 font-sans min-h-screen dark:bg-gray-800 dark:text-gray-100">
+    <div class="container mx-auto p-6">
+        <!-- Dark Mode Toggle -->
+        <div class="flex justify-end mb-4">
+            <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="themeToggle" class="sr-only peer">
+                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 dark:peer-focus:ring-blue-600 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">Modo Oscuro</span>
+            </label>
+        </div>
+        
+        <!-- Límite y saldo -->
+        <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-lg mb-8 border border-blue-200 dark:border-gray-600">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
+                <div>
+                    <p class="text-lg font-semibold text-blue-700 dark:text-blue-300">Límite Tarjeta de Crédito: Q 4800.00</p>
+                    <p class="text-lg font-semibold text-green-600 dark:text-green-400">Saldo Restante: Q <span id="remainingCreditBalance">4800</span></p>
+                    <p class="text-lg font-semibold text-pink-700 dark:text-pink-400">Total Gastos Tarjeta de Crédito: Q <span id="totalCreditExpenses">0</span></p>
+                </div>
+                <div>
+                    <p class="text-lg font-semibold text-blue-700 dark:text-blue-300">Límite Visa Cuotas: Q 9600.00</p>
+                    <p class="text-lg font-semibold text-green-600 dark:text-green-400">Saldo Restante: Q <span id="remainingVisaBalance">9600</span></p>
+                    <p class="text-lg font-semibold text-pink-700 dark:text-pink-400">Total Gastos Visa Cuotas: Q <span id="totalVisaExpenses">0</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Formulario para agregar gastos -->
+        <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-lg mb-8 border border-blue-200 dark:border-gray-600">
+            <h2 class="text-2xl font-semibold mb-4 text-blue-800 dark:text-blue-200">Agregar Gasto</h2>
+            <div class="flex flex-col md:flex-row gap-4">
+                <input id="description" type="text" placeholder="Descripción" class="border border-gray-300 dark:border-gray-500 p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-600 dark:text-white">
+                <input id="amount" type="number" placeholder="Monto" class="border border-gray-300 dark:border-gray-500 p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-600 dark:text-white">
+                <input id="expenseDate" type="date" class="border border-gray-300 dark:border-gray-500 p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-600 dark:text-white">
+                <select id="category" class="border border-gray-300 dark:border-gray-500 p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-600 dark:text-white">
+                    <option value="Alimentos">Alimentos</option>
+                    <option value="Transporte">Transporte</option>
+                    <option value="Entretenimiento">Entretenimiento</option>
+                    <option value="Otros">Otros</option>
+                </select>
+                <select id="paymentMethod" class="border border-gray-300 dark:border-gray-500 p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-600 dark:text-white" onchange="toggleInstallments()">
+                    <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                    <option value="Visa Cuotas">Visa Cuotas</option>
+                </select>
+                <input id="installments" type="number" placeholder="Número de Cuotas" class="border border-gray-300 dark:border-gray-500 p-2 rounded-lg w-full hidden focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-600 dark:text-white" min="1">
+                <button onclick="addExpense()" class="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center gap-2 dark:bg-blue-500 dark:hover:bg-blue-600">
+                    <i class="fas fa-plus"></i> Agregar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Formulario para registrar pagos -->
+        <div class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-lg mb-8 border border-blue-200 dark:border-gray-600">
+            <h2 class="text-2xl font-semibold mb-3 text-blue-800 dark:text-blue-200">Registrar Pago</h2>
+            <div class="flex flex-col md:flex-row gap-3">
+                <input id="paymentAmount" type="number" placeholder="Monto del Pago" class="border border-gray-200 dark:border-gray-500 p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-600 dark:text-white">
+                <input id="paymentDate" type="date" class="border border-gray-300 dark:border-gray-500 p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-600 dark:text-white">
+                <select id="paymentMethodSelect" class="border border-gray-200 dark:border-gray-500 p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-600 dark:text-white">
+                    <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                    <option value="Visa Cuotas">Visa Cuotas</option>
+                </select>
+                <button onclick="addPayment()" class="bg-green-400 text-white p-2 rounded-lg hover:bg-green-700 transition duration-300 flex items-center gap-10 dark:bg-green-500 dark:hover:bg-green-600">
+                    <i class="fas fa-money-check-alt"></i> Registrar Pago
+                </button>
+            </div>
+        </div>
+        
+        <!-- Línea de tiempo combinada -->
+        <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-lg mb-8 border border-blue-200 dark:border-gray-600">
+            <h2 class="text-2xl font-semibold mb-4 text-blue-800 dark:text-blue-200">Línea de Tiempo de Gastos y Pagos</h2>
+            <div class="overflow-x-auto max-h-50">
+                <div id="timelineContainer" class="relative py-12 min-w-max">
+                    <div class="absolute w-full h-1 bg-blue-200 dark:bg-gray-500 top-1/2 transform -translate-y-1/2"></div>
+                    <div id="timeline" class="relative h-20"></div>
+                </div>
+            </div>
+            <p id="noPaymentsMessage" class="text-center text-gray-500 dark:text-gray-400 mt-4 hidden">No hay gastos ni pagos programados.</p>
+        </div>
+
+        <!-- Tabla de gastos -->
+        <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-lg mb-8 border border-blue-200 dark:border-gray-600">
+            <h2 class="text-2xl font-semibold mb-4 text-blue-800 dark:text-blue-200">Lista de Gastos</h2>
+            <div class="overflow-y-auto max-h-40">
+                <table class="w-full text-left">
+                    <thead class="sticky top-0 bg-blue-100 dark:bg-gray-600">
+                        <tr>
+                            <th class="p-3">Descripción</th>
+                            <th class="p-3">Monto</th>
+                            <th class="p-3">Categoría</th>
+                            <th class="p-3">Fecha</th>
+                            <th class="p-3">Método de Pago</th>
+                            <th class="p-3">Cuotas</th>
+                            <th class="p-3">Monto Mensual</th>
+                            <th class="p-3">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expenseTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tabla de pagos -->
+        <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-lg mb-8 border border-blue-200 dark:border-gray-600">
+            <h2 class="text-2xl font-semibold mb-4 text-blue-800 dark:text-blue-200">Lista de Pagos</h2>
+            <div class="overflow-y-auto max-h-40">
+                <table class="w-full text-left">
+                    <thead class="sticky top-0 bg-blue-100 dark:bg-gray-600">
+                        <tr>
+                            <th class="p-3">Monto</th>
+                            <th class="p-3">Fecha</th>
+                            <th class="p-3">Método de Pago</th>
+                            <th class="p-3">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LIMIT_CREDIT = 4800;
+        const LIMIT_VISA_CUOTAS = 9600;
+
+        // Dark Mode Logic
+        const themeToggle = document.getElementById('themeToggle');
+        const setTheme = (theme) => {
+            document.documentElement.classList.toggle('dark', theme === 'dark');
+            localStorage.setItem('theme', theme);
+            themeToggle.checked = theme === 'dark';
+        };
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        setTheme(savedTheme);
+        themeToggle.addEventListener('change', () => {
+            setTheme(themeToggle.checked ? 'dark' : 'light');
+        });
+
+        function toggleInstallments() {
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const installmentsInput = document.getElementById('installments');
+            installmentsInput.classList.toggle('hidden', paymentMethod !== 'Visa Cuotas');
+            if (paymentMethod !== 'Visa Cuotas') {
+                installmentsInput.value = '';
+            }
+        }
+
+        async function addExpense() {
+            const description = document.getElementById('description').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const date = document.getElementById('expenseDate').value;
+            const category = document.getElementById('category').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const installments = paymentMethod === 'Visa Cuotas' ? parseInt(document.getElementById('installments').value) : null;
+
+            if (!description || !amount || !date || !category || (paymentMethod === 'Visa Cuotas' && (!installments || installments < 1))) {
+                alert('Por favor, completa todos los campos requeridos.');
+                return;
+            }
+
+            const dateObj = new Date(date);
+            const formattedDate = `${dateObj.getDate()}/${dateObj.getMonth() + 1}/${dateObj.getFullYear()}`;
+
+            try {
+                const responseExpenses = await fetch('/api/expenses');
+                const expenses = await responseExpenses.json();
+                const creditTotal = expenses
+                    .filter(expense => expense.payment_method === 'Tarjeta de Crédito')
+                    .reduce((sum, expense) => sum + expense.amount, 0);
+                const visaTotal = expenses
+                    .filter(expense => expense.payment_method === 'Visa Cuotas')
+                    .reduce((sum, expense) => sum + expense.amount, 0);
+
+                if (paymentMethod === 'Tarjeta de Crédito' && creditTotal + amount > LIMIT_CREDIT) {
+                    alert('El gasto excede el límite de Tarjeta de Crédito ($4800)');
+                    return;
+                }
+                if (paymentMethod === 'Visa Cuotas' && visaTotal + amount > LIMIT_VISA_CUOTAS) {
+                    alert('El gasto excede el límite de Visa Cuotas ($9600)');
+                    return;
+                }
+
+                const response = await fetch('/api/expenses', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ description, amount, category, date: formattedDate, payment_method: paymentMethod, installments })
+                });
+                if (response.ok) {
+                    renderExpenses();
+                    clearInputs();
+                } else {
+                    const errorData = await response.json();
+                    alert(errorData.error || 'Error al agregar el gasto');
+                }
+            } catch (error) {
+                console.error('Error al agregar el gasto:', error);
+                alert('Error al agregar el gasto: ' + error.message);
+            }
+        }
+
+        async function addPayment() {
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+            const paymentDate = document.getElementById('paymentDate').value;
+            const paymentMethod = document.getElementById('paymentMethodSelect').value;
+
+            if (!amount || !paymentDate || !paymentMethod) {
+                alert('Por favor, completa todos los campos requeridos.');
+                return;
+            }
+
+            const dateObj = new Date(paymentDate);
+            const formattedDate = `${dateObj.getDate()}/${dateObj.getMonth() + 1}/${dateObj.getFullYear()}`;
+
+            try {
+                const response = await fetch('/api/payments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, payment_date: formattedDate, payment_method: paymentMethod })
+                });
+
+                if (response.ok) {
+                    renderExpenses();
+                    clearPaymentInputs();
+                } else {
+                    const errorData = await response.json();
+                    alert(errorData.error || 'Error al registrar el pago');
+                }
+            } catch (error) {
+                console.error('Error al registrar el pago:', error);
+                alert('Error al registrar el pago: ' + error.message);
+            }
+        }
+
+        async function deleteExpense(id) {
+            try {
+                const response = await fetch(`/api/expenses/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    renderExpenses();
+                } else {
+                    alert('Error al eliminar el gasto');
+                }
+            } catch (error) {
+                console.error('Error al eliminar el gasto:', error);
+                alert('Error al eliminar el gasto: ' + error.message);
+            }
+        }
+
+        async function deletePayment(id) {
+            try {
+                const response = await fetch(`/api/payments/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    renderExpenses();
+                } else {
+                    alert('Error al eliminar el pago');
+                }
+            } catch (error) {
+                console.error('Error al eliminar el pago:', error);
+                alert('Error al eliminar el pago: ' + error.message);
+            }
+        }
+
+        async function checkPaymentReminder() {
+            const today = new Date();
+            const day = today.getDate();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+
+            if (day !== 4) return;
+
+            try {
+                const expensesResponse = await fetch('/api/expenses');
+                const paymentsResponse = await fetch('/api/payments');
+                const expenses = await expensesResponse.json();
+                const payments = await paymentsResponse.json();
+
+                const eventsByMonth = {};
+
+                const creditExpenses = expenses.filter(expense => expense.payment_method === 'Tarjeta de Crédito');
+                creditExpenses.forEach(expense => {
+                    let [day, month, year] = expense.date.split('/').map(Number);
+                    const eventDate = new Date(year, month - 1, 1);
+                    const monthKey = `${eventDate.getFullYear()}-${eventDate.getMonth() + 1}`;
+                    if (!eventsByMonth[monthKey]) {
+                        eventsByMonth[monthKey] = { creditTotal: 0, visaTotal: 0, creditPayments: 0, visaPayments: 0 };
+                    }
+                    eventsByMonth[monthKey].creditTotal += expense.amount;
+                });
+
+                const visaExpenses = expenses.filter(expense => expense.payment_method === 'Visa Cuotas' && expense.installments);
+                visaExpenses.forEach(expense => {
+                    const monthlyPayment = expense.amount / expense.installments;
+                    let [day, month, year] = expense.date.split('/').map(Number);
+                    const startDate = new Date(year, month - 1, 1);
+
+                    for (let i = 0; i < expense.installments; i++) {
+                        const paymentDate = new Date(startDate);
+                        paymentDate.setMonth(startDate.getMonth() + i + 1);
+                        const monthKey = `${paymentDate.getFullYear()}-${paymentDate.getMonth() + 1}`;
+                        if (!eventsByMonth[monthKey]) {
+                            eventsByMonth[monthKey] = { creditTotal: 0, visaTotal: 0, creditPayments: 0, visaPayments: 0 };
+                        }
+                        eventsByMonth[monthKey].visaTotal += monthlyPayment;
+                    }
+                });
+
+                payments.forEach(payment => {
+                    let [day, month, year] = payment.payment_date.split('/').map(Number);
+                    const paymentDate = new Date(year, month - 1, 1);
+                    const monthKey = `${paymentDate.getFullYear()}-${paymentDate.getMonth() + 1}`;
+                    if (!eventsByMonth[monthKey]) {
+                        eventsByMonth[monthKey] = { creditTotal: 0, visaTotal: 0, creditPayments: 0, visaPayments: 0 };
+                    }
+                    if (payment.payment_method === 'Tarjeta de Crédito') {
+                        eventsByMonth[monthKey].creditPayments += payment.amount;
+                    } else if (payment.payment_method === 'Visa Cuotas') {
+                        eventsByMonth[monthKey].visaPayments += payment.amount;
+                    }
+                });
+
+                const previousMonth = new Date(currentYear, currentMonth - 1, 1);
+                const monthKey = `${previousMonth.getFullYear()}-${previousMonth.getMonth() + 1}`;
+                const monthName = previousMonth.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+
+                if (eventsByMonth[monthKey]) {
+                    const { creditTotal, visaTotal, creditPayments, visaPayments } = eventsByMonth[monthKey];
+                    const creditPending = creditTotal - creditPayments;
+                    const visaPending = visaTotal - visaPayments;
+
+                    if (creditPending > 0 || visaPending > 0) {
+                        let message = `Recordatorio: Tienes pagos pendientes para ${monthName}:\n`;
+                        if (creditPending > 0) {
+                            message += `- Tarjeta de Crédito: $${creditPending.toFixed(2)}\n`;
+                        }
+                        if (visaPending > 0) {
+                            message += `- Visa Cuotas: $${visaPending.toFixed(2)}`;
+                        }
+                        alert(message);
+                    }
+                }
+            } catch (error) {
+                console.error('Error al verificar pagos pendientes:', error);
+            }
+        }
+
+        async function renderExpenses() {
+            try {
+                const expensesResponse = await fetch('/api/expenses');
+                const paymentsResponse = await fetch('/api/payments');
+                if (!expensesResponse.ok || !paymentsResponse.ok) {
+                    throw new Error('Error en la solicitud');
+                }
+                const expenses = await expensesResponse.json();
+                const payments = await paymentsResponse.json();
+                const expenseTableBody = document.getElementById('expenseTable');
+                const paymentTableBody = document.getElementById('paymentTable');
+                expenseTableBody.innerHTML = '';
+                paymentTableBody.innerHTML = '';
+
+                let creditTotal = 0;
+                let visaTotal = 0;
+                let creditPayments = 0;
+                let visaPayments = 0;
+
+                expenses.forEach(expense => {
+                    if (expense.payment_method === 'Tarjeta de Crédito') {
+                        creditTotal += expense.amount;
+                    } else if (expense.payment_method === 'Visa Cuotas') {
+                        visaTotal += expense.amount;
+                    }
+                });
+
+                payments.forEach(payment => {
+                    if (payment.payment_method === 'Tarjeta de Crédito') {
+                        creditPayments += payment.amount;
+                    } else if (payment.payment_method === 'Visa Cuotas') {
+                        visaPayments += payment.amount;
+                    }
+                    const row = `
+                        <tr class="border-b border-gray-200 dark:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <td class="p-3">${payment.amount.toFixed(2)}</td>
+                            <td class="p-3">${payment.payment_date}</td>
+                            <td class="p-3">${payment.payment_method}</td>
+                            <td class="p-3">
+                                <button onclick="deletePayment(${payment.id})" class="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition duration-300 flex items-center gap-2">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    paymentTableBody.innerHTML += row;
+                });
+
+                const creditTotalAfterPayments = Math.max(0, creditTotal - creditPayments);
+                const visaTotalAfterPayments = Math.max(0, visaTotal - visaPayments);
+
+                expenses.forEach(expense => {
+                    const monthlyAmount = expense.payment_method === 'Visa Cuotas' && expense.installments
+                        ? (expense.amount / expense.installments).toFixed(2)
+                        : '-';
+                    const row = `
+                        <tr class="border-b border-gray-200 dark:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <td class="p-3">${expense.description}</td>
+                            <td class="p-3">${expense.amount.toFixed(2)}</td>
+                            <td class="p-3">${expense.category}</td>
+                            <td class="p-3">${expense.date}</td>
+                            <td class="p-3">${expense.payment_method}</td>
+                            <td class="p-3">${expense.installments || '-'}</td>
+                            <td class="p-3">${monthlyAmount}</td>
+                            <td class="p-3">
+                                <button onclick="deleteExpense(${expense.id})" class="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition duration-300 flex items-center gap-2">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    expenseTableBody.innerHTML += row;
+                });
+
+                document.getElementById('totalCreditExpenses').textContent = creditTotalAfterPayments.toFixed(2);
+                document.getElementById('totalVisaExpenses').textContent = visaTotalAfterPayments.toFixed(2);
+                document.getElementById('remainingCreditBalance').textContent = (LIMIT_CREDIT - creditTotalAfterPayments).toFixed(2);
+                document.getElementById('remainingVisaBalance').textContent = (LIMIT_VISA_CUOTAS - visaTotalAfterPayments).toFixed(2);
+
+                renderTimeline(expenses, payments);
+                checkPaymentReminder();
+            } catch (error) {
+                console.error('Error al cargar los gastos:', error);
+                alert('Error al cargar los gastos: ' + error.message);
+            }
+        }
+
+        function renderTimeline(expenses, payments) {
+            const timeline = document.getElementById('timeline');
+            const noPaymentsMessage = document.getElementById('noPaymentsMessage');
+            timeline.innerHTML = '';
+
+            const eventsByMonth = {};
+
+            // Helper function to get month key (YYYY-MM)
+            const getMonthKey = (date) => {
+                return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+            };
+
+            // Process credit card expenses
+            const creditExpenses = expenses.filter(expense => expense.payment_method === 'Tarjeta de Crédito');
+            creditExpenses.forEach(expense => {
+                let [day, month, year] = expense.date.split('/').map(Number);
+                // Normalize to first of the month to avoid date overflow
+                const eventDate = new Date(year, month - 1, 1);
+                const monthKey = getMonthKey(eventDate);
+                const monthName = eventDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+
+                if (!eventsByMonth[monthKey]) {
+                    eventsByMonth[monthKey] = { 
+                        creditTotal: 0, 
+                        visaTotal: 0, 
+                        name: monthName, 
+                        date: eventDate, 
+                        creditPaid: false, 
+                        visaPaid: false, 
+                        creditPayments: 0, 
+                        visaPayments: 0 
+                    };
+                }
+                eventsByMonth[monthKey].creditTotal += expense.amount;
+            });
+
+            // Process Visa Cuotas expenses
+            const visaExpenses = expenses.filter(expense => expense.payment_method === 'Visa Cuotas' && expense.installments);
+            visaExpenses.forEach(expense => {
+                const monthlyPayment = expense.amount / expense.installments;
+                let [day, month, year] = expense.date.split('/').map(Number);
+                const startDate = new Date(year, month - 1, 1);
+
+                for (let i = 0; i < expense.installments; i++) {
+                    const paymentDate = new Date(startDate);
+                    // Set to first of the month to avoid overflow
+                    paymentDate.setMonth(startDate.getMonth() + i + 1);
+                    paymentDate.setDate(1);
+                    const monthKey = getMonthKey(paymentDate);
+                    const monthName = paymentDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+
+                    if (!eventsByMonth[monthKey]) {
+                        eventsByMonth[monthKey] = { 
+                            creditTotal: 0, 
+                            visaTotal: 0, 
+                            name: monthName, 
+                            date: paymentDate, 
+                            creditPaid: false, 
+                            visaPaid: false, 
+                            creditPayments: 0, 
+                            visaPayments: 0 
+                        };
+                    }
+                    eventsByMonth[monthKey].visaTotal += monthlyPayment;
+                }
+            });
+
+            // Process payments
+            let cumulativeCreditPayments = 0;
+            let cumulativeVisaPayments = 0;
+            const creditPaymentsByMonth = {};
+            const visaPaymentsByMonth = {};
+
+            payments.forEach(payment => {
+                let [day, month, year] = payment.payment_date.split('/').map(Number);
+                const paymentDate = new Date(year, month - 1, 1);
+                const monthKey = getMonthKey(paymentDate);
+
+                if (payment.payment_method === 'Tarjeta de Crédito') {
+                    if (!creditPaymentsByMonth[monthKey]) {
+                        creditPaymentsByMonth[monthKey] = 0;
+                    }
+                    creditPaymentsByMonth[monthKey] += payment.amount;
+                } else if (payment.payment_method === 'Visa Cuotas') {
+                    if (!visaPaymentsByMonth[monthKey]) {
+                        visaPaymentsByMonth[monthKey] = 0;
+                    }
+                    visaPaymentsByMonth[monthKey] += payment.amount;
+                }
+            });
+
+            // Apply cumulative payments for credit card
+            const sortedCreditPaymentMonths = Object.keys(creditPaymentsByMonth).sort();
+            for (const monthKey of sortedCreditPaymentMonths) {
+                cumulativeCreditPayments += creditPaymentsByMonth[monthKey];
+                for (const eventMonthKey of Object.keys(eventsByMonth)) {
+                    if (eventMonthKey <= monthKey) {
+                        eventsByMonth[eventMonthKey].creditPayments = cumulativeCreditPayments;
+                        if (eventsByMonth[eventMonthKey].creditPayments >= eventsByMonth[eventMonthKey].creditTotal && eventsByMonth[eventMonthKey].creditTotal > 0) {
+                            eventsByMonth[eventMonthKey].creditPaid = true;
+                        }
+                    }
+                }
+            }
+
+            // Apply cumulative payments for Visa Cuotas
+            const sortedVisaPaymentMonths = Object.keys(visaPaymentsByMonth).sort();
+            for (const monthKey of sortedVisaPaymentMonths) {
+                cumulativeVisaPayments += visaPaymentsByMonth[monthKey];
+                for (const eventMonthKey of Object.keys(eventsByMonth)) {
+                    if (eventMonthKey <= monthKey) {
+                        eventsByMonth[eventMonthKey].visaPayments = cumulativeVisaPayments;
+                        if (eventsByMonth[eventMonthKey].visaPayments >= eventsByMonth[eventMonthKey].visaTotal && eventsByMonth[eventMonthKey].visaTotal > 0) {
+                            eventsByMonth[eventMonthKey].visaPaid = true;
+                        }
+                    }
+                }
+            }
+
+            // Sort months chronologically
+            const sortedMonths = Object.keys(eventsByMonth).sort();
+
+            if (sortedMonths.length === 0) {
+                noPaymentsMessage.classList.remove('hidden');
+                timeline.parentElement.style.minWidth = '0';
+                return;
+            } else {
+                noPaymentsMessage.classList.add('hidden');
+            }
+
+            // Calculate timeline width
+            const firstDate = eventsByMonth[sortedMonths[0]].date;
+            const lastDate = eventsByMonth[sortedMonths[sortedMonths.length - 1]].date;
+            const totalMonths = (lastDate.getFullYear() - firstDate.getFullYear()) * 12 + lastDate.getMonth() - firstDate.getMonth() + 1;
+            const totalWidth = Math.max(totalMonths * 100, sortedMonths.length * 150);
+
+            timeline.parentElement.style.minWidth = `${totalWidth}px`;
+
+            // Render timeline points
+            sortedMonths.forEach((monthKey, index) => {
+                const { creditTotal, visaTotal, name, date, creditPaid, visaPaid } = eventsByMonth[monthKey];
+                const monthsFromStart = (date.getFullYear() - firstDate.getFullYear()) * 12 + date.getMonth() - firstDate.getMonth();
+                const position = totalMonths > 0 ? (monthsFromStart / totalMonths) * 100 : (index / (sortedMonths.length - 1)) * 100;
+
+                if (creditTotal > 0) {
+                    const bgColor = creditPaid ? 'bg-red-600' : 'bg-blue-600';
+                    const point = `
+                        <div class="absolute flex flex-col items-center" style="left: ${position}%; top: -40px;">
+                            <div class="w-6 h-6 ${bgColor} rounded-full flex items-center justify-center text-white text-xs shadow-lg">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="mt-2 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">${name}</div>
+                            <div class="text-center text-sm text-blue-600 dark:text-blue-400">Tarjeta: $${creditTotal.toFixed(2)}</div>
+                        </div>
+                    `;
+                    timeline.innerHTML += point;
+                }
+
+                if (visaTotal > 0) {
+                    const bgColor = visaPaid ? 'bg-red-600' : 'bg-blue-600';
+                    const point = `
+                        <div class="absolute flex flex-col items-center" style="left: ${position}%; top: 40px;">
+                            <div class="w-6 h-6 ${bgColor} rounded-full flex items-center justify-center text-white text-xs shadow-lg">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="mt-2 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">${name}</div>
+                            <div class="text-center text-sm text-blue-600 dark:text-blue-400">Visa: $${visaTotal.toFixed(2)}</div>
+                        </div>
+                    `;
+                    timeline.innerHTML += point;
+                }
+            });
+        }
+
+        function clearInputs() {
+            document.getElementById('description').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('expenseDate').value = '';
+            document.getElementById('category').value = 'Alimentos';
+            document.getElementById('paymentMethod').value = 'Tarjeta de Crédito';
+            document.getElementById('installments').value = '';
+            document.getElementById('installments').classList.add('hidden');
+        }
+
+        function clearPaymentInputs() {
+            document.getElementById('paymentAmount').value = '';
+            document.getElementById('paymentDate').value = '';
+            document.getElementById('paymentMethodSelect').value = 'Tarjeta de Crédito';
+        }
+
+        renderExpenses();
+    </script>
+</body>
+</html>
